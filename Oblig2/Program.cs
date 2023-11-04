@@ -1,7 +1,26 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.EntityFrameworkCore;
+using Oblig2.Data;
+using Oblig2.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddMvc();
+
+builder.Services.AddSingleton<ITempDataProvider, CookieTempDataProvider>();
+builder.Services.AddTransient<IBlogRepository, BlogRepository>();
+builder.Services.AddDefaultIdentity<IdentityUser>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
+
+
+string dbConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<ApplicationDbContext>(opt =>
+    opt.UseMySql(dbConnectionString,
+        ServerVersion.AutoDetect(dbConnectionString))
+);
 
 var app = builder.Build();
 
@@ -17,11 +36,12 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseAuthentication();;
 
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Blog}/{action=Index}/{id?}");
 
 app.Run();
