@@ -1,0 +1,20 @@
+﻿@using Oblig2.Models.ViewModels
+@model BlogViewModel
+
+<head>
+    <title>Details Post</title>
+</head>
+<body>
+<div class="card-header">
+    <div class="align-content-lg-start">
+        <h1>@Model.Name</h1>
+    </div>
+        <div class="align-content-lg-end">
+            <h1>@Model.Owner.Email</h1>
+        </div>
+</div>
+<div>
+        <textarea readonly style="width: 100%; height: auto;" rows="5">@Model.Description</textarea>
+    </div>
+
+</body>

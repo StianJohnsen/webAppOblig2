@@ -1,7 +1,10 @@
-﻿namespace Oblig2.Models.Entities;
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace Oblig2.Models.Entities;
 
 public class Post
 {
+    public virtual IdentityUser Owner { get; set; }
     public int PostId { get; set; }
     public string Title { get; set; }
     public string Content { get; set; }

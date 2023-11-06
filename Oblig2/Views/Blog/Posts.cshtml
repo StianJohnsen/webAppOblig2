@@ -1,13 +1,20 @@
 ﻿@model IEnumerable<Oblig2.Models.Entities.Post>
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Posts";
 }
 
-<h1>Details</h1>
+<h1>Posts</h1>
 
 <p>
-    <a asp-action="CreatePost">Create New</a>
+    @if (Model.Any() && Model.First().Blog != null)
+    {
+        <a asp-action="CreatePost" asp-route-id="@Model.First().Blog.BlogId">Create New</a>
+    }
+    else
+    {
+        <a asp-action="CreatePost" asp-route-id="@Context.Request.RouteValues["id"]">Create New</a>
+    }
 </p>
 <table class="table">
     <thead>
@@ -31,16 +38,20 @@
                 @Html.DisplayFor(modelItem => item.Title)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Content)
+                @{
+                    int maxLength = 100;
+                    string content = item.Content.Length <= maxLength ? item.Content : item.Content.Substring(0, maxLength) + "...";
+                }
+                @Html.DisplayFor(modelItem => content)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Blog.BlogId)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.PostId">Edit</a> |
-                <a asp-action="Posts" asp-route-id="@item.PostId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.PostId">Delete</a>
-                <a asp-action="Comments" asp-route-id="@item.PostId">Comments</a>
+                <a asp-action="EditPost" asp-route-id="@item.PostId">Edit</a> |
+                <a asp-action="DetailsPost" asp-route-id="@item.PostId">Details</a> |
+                <a asp-action="DeletePost" asp-route-id="@item.PostId">Delete</a> |
+                <a asp-action="Comments" asp-route-id="@item.PostId">Comments</a> |
             </td>
         </tr>
 }

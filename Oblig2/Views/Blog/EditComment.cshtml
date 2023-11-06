@@ -1,0 +1,33 @@
+﻿@using Oblig2.Models.ViewModels
+@model CommentViewModel
+
+<head>
+    <title>New Comment</title>
+</head>
+<body>
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="EditComment" method="post">
+            <div>
+                <label asp-for="CommentContent">CommentContent:</label>
+                <textarea asp-for="CommentContent" class="form-control"></textarea>
+                <span asp-validation-for="CommentContent" class="text-danger"></span>
+            </div>
+            <div>
+                <input type="hidden" asp-for="PostId" class="form-control"/>
+
+            </div>
+            <button type="submit">Edit Comment</button>
+
+        </form>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+
+    </div>
+
+</div>
+</body>
+
+@section Scripts
+{@{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

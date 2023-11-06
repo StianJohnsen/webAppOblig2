@@ -1,0 +1,18 @@
+﻿@using Oblig2.Models.ViewModels
+@model PostViewModel
+
+
+<head>
+    <title>Details Post</title>
+</head>
+<body>
+<div class="card-header">
+    <div>
+        <h1>@Model.Title</h1>
+    </div>
+</div>
+<div>
+        <textarea readonly style="width: 100%; height: auto;" rows="5">@Model.Content</textarea>
+    </div>
+
+</body>

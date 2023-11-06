@@ -36,12 +36,14 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-app.UseAuthentication();;
+app.UseAuthentication();
 
 app.UseAuthorization();
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Blog}/{action=Index}/{id?}");
+        name: "default",
+        pattern: "{controller=Blog}/{action=Index}/{id?}")
+    ;
+app.MapRazorPages();
 
 app.Run();
