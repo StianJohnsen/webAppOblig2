@@ -10,5 +10,6 @@ public class BlogViewModel
     [StringLength(20)]
     public string Name { get; set; }
     public string Description { get; set; }
+    public Boolean IsOpenForExternalWriters { get; set; }
     public IdentityUser? Owner { get; set; }
 }

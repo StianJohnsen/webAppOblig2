@@ -1,20 +1,26 @@
-﻿@using Oblig2.Models.ViewModels
-@model BlogViewModel
+﻿@using Oblig2.Models.Entities
+@model Blog
 
 <head>
     <title>Details Post</title>
 </head>
 <body>
 <div class="card-header">
-    <div class="align-content-lg-start">
-        <h1>@Model.Name</h1>
-    </div>
-        <div class="align-content-lg-end">
-            <h1>@Model.Owner.Email</h1>
+    <div class="d-flex justify-content-between">
+        <div>
+            <h2>Title: @Model.Name</h2>
         </div>
+        <div>
+            <h2>Author: @Model.Owner.Email</h2>
+        </div>
+
+    </div>
 </div>
 <div>
-        <textarea readonly style="width: 100%; height: auto;" rows="5">@Model.Description</textarea>
-    </div>
+    <textarea readonly style="width: 100%; height: auto;" rows="5">@Model.Description</textarea>
+</div>
+<div>
+    <h3>Created: @Model.TimeCreated</h3>
+</div>
 
 </body>

@@ -7,32 +7,34 @@
 <h1>Posts</h1>
 
 <p>
-    @if (Model.Any() && Model.First().Blog != null)
-    {
-        <a asp-action="CreatePost" asp-route-id="@Model.First().Blog.BlogId">Create New</a>
+    @{
+        // If the blog is open for external writers, show the create new post link
+        
     }
-    else
-    {
-        <a asp-action="CreatePost" asp-route-id="@Context.Request.RouteValues["id"]">Create New</a>
-    }
+    <a asp-action="CreatePost" asp-route-id="@Context.Request.RouteValues["id"]">Create New</a>
+
 </p>
 <table class="table">
     <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Content)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Blog)
-            </th>
-            <th></th>
-        </tr>
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Title)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Content)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Owner.Email)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TimeCreated)
+        </th>
+        <th></th>
+    </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+    @foreach (var item in Model)
+    {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Title)
@@ -45,7 +47,10 @@
                 @Html.DisplayFor(modelItem => content)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Blog.BlogId)
+                @Html.DisplayFor(modelItem => item.Owner.Email)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TimeCreated)
             </td>
             <td>
                 <a asp-action="EditPost" asp-route-id="@item.PostId">Edit</a> |
@@ -54,6 +59,6 @@
                 <a asp-action="Comments" asp-route-id="@item.PostId">Comments</a> |
             </td>
         </tr>
-}
+    }
     </tbody>
 </table>

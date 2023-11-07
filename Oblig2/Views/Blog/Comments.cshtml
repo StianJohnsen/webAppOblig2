@@ -22,8 +22,14 @@
         <th>
             @Html.DisplayNameFor(model => model.CommentContent)
         </th>
+
         <th>
-            @Html.DisplayNameFor(model => model.Post)
+            @Html.DisplayNameFor(model => model.Owner.Email)
+
+        </th>
+
+        <th>
+            @Html.DisplayNameFor(model => model.TimeCreated)
         </th>
         <th></th>
     </tr>
@@ -39,8 +45,11 @@
                 }
                 @Html.DisplayFor(modelItem => content)
             </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Owner.Email)
+                        </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Post.PostId)
+                @Html.DisplayFor(modelItem => item.TimeCreated)
             </td>
             <td>
                 <a asp-action="EditComment" asp-route-id="@item.CommentId">Edit</a> |

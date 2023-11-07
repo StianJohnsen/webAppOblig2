@@ -9,4 +9,6 @@ public class Comment
     public string CommentContent { get; set; }
     public int PostId { get; set; }
     public Post Post { get; set; }
+    public DateTime TimeCreated { get; set; }
+
 }

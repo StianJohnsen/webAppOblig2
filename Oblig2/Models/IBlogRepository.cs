@@ -1,4 +1,5 @@
 ﻿using System.Security.Principal;
+using Microsoft.AspNetCore.Identity;
 using Oblig2.Models.Entities;
 using Oblig2.Models.ViewModels;
 
@@ -22,12 +23,13 @@ public interface IBlogRepository
     CommentViewModel GetCommentViewModel();
 
     BlogViewModel GetBlogViewModelById(int id);
+    Blog GetBlogById(int id);
 
     public Task SaveBlog(Blog blog, IPrincipal principal);
     public Task SavePost(Post post, IPrincipal principal);
-    public void EditPost(Post post);
-    public void DeletePost(Post post);
-    public void EditComment(Comment comment);
+    public Task EditPost(Post post, IPrincipal principal);
+    public Task DeletePost(Post post, IPrincipal principal);
+    public Task EditComment(Comment comment, IPrincipal principal);
     public Task SaveComment(Comment comment, IPrincipal principal);
-    public void DeleteComment(Comment comment);
+    public Task DeleteComment(Comment comment, IPrincipal principal);
 }

@@ -21,6 +21,9 @@
         <th>
             @Html.DisplayNameFor(model => model.Owner.Email)
         </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TimeCreated)
+        </th>
         <th></th>
     </tr>
     </thead>
@@ -45,6 +48,9 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Owner.Email)
             </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.TimeCreated)
+                        </td>
             <td>
                 <a asp-action="DetailsBlog" asp-route-id="@item.BlogId">Details</a> |
                 <a asp-action="Posts" asp-route-id="@item.BlogId">Posts</a> |

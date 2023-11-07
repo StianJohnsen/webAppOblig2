@@ -10,8 +10,7 @@ namespace Oblig2.Controllers;
 public class BlogController : Controller
 {
     private IBlogRepository repository;
-
-
+    
     public BlogController(IBlogRepository repository)
     {
         this.repository = repository;
@@ -32,7 +31,7 @@ public class BlogController : Controller
 
     public ActionResult DetailsBlog(int id)
     {
-        var blog = repository.GetBlogViewModelById(id);
+        var blog = repository.GetBlogById(id);
         return View(blog);
     }
 
@@ -69,7 +68,8 @@ public class BlogController : Controller
             {
                 CommentId = commentViewModel.CommentId,
                 CommentContent = commentViewModel.CommentContent,
-                PostId = id
+                PostId = id,
+                TimeCreated = DateTime.Now
             };
 
 
@@ -106,7 +106,8 @@ public class BlogController : Controller
                 PostId = postViewModel.PostId,
                 Title = postViewModel.Title,
                 Content = postViewModel.Content,
-                BlogId = id
+                BlogId = id,
+                TimeCreated = DateTime.Now
             };
 
 
@@ -142,21 +143,16 @@ public class BlogController : Controller
         [Bind("Title,Content", "BlogId")] PostViewModel postViewModel)
 
     {
+        var post = repository.GetPostById(Id);
+        post.Title = postViewModel.Title;
+        post.Content = postViewModel.Content;
+        post.TimeCreated = DateTime.Now;
         try
         {
-            var post = new Post
-            {
-                PostId = Id,
-                Title = postViewModel.Title,
-                Content = postViewModel.Content,
-                BlogId = postViewModel.BlogId
-            };
-
-
             if (ModelState.IsValid)
             {
                 TempData["message"] = string.Format("{0} has been saved", post.Title);
-                repository.EditPost(post);
+                repository.EditPost(post,User).Wait();
                 return RedirectToAction("Posts",
                     new RouteValueDictionary(new
                         { Controller = "Blog", Action = "Posts", Id = postViewModel.BlogId }));
@@ -184,7 +180,7 @@ public class BlogController : Controller
     public ActionResult DeleteComment(int id)
     {
         var comment = repository.GetCommentById(id);
-        repository.DeleteComment(comment);
+        repository.DeleteComment(comment, User).Wait();
         TempData["message"] = "Your comment has been deleted";
         return RedirectToAction("Comments",
             new RouteValueDictionary(new { Controller = "Blog", Action = "Comments", Id = comment.PostId }));
@@ -211,16 +207,13 @@ public class BlogController : Controller
     {
         try
         {
-            var comment = new Comment
-            {
-                CommentId = Id,
-                CommentContent = commentViewModel.CommentContent,
-                PostId = commentViewModel.PostId
-            };
+            var comment = repository.GetCommentById(Id);
+            comment.CommentContent = commentViewModel.CommentContent;
+            comment.TimeCreated = DateTime.Now;
             if (ModelState.IsValid)
             {
                 TempData["message"] = "Your comment has been edited";
-                repository.EditComment(comment);
+                repository.EditComment(comment, User).Wait();
                 return RedirectToAction("Comments",
                     new RouteValueDictionary(new
                         { Controller = "Blog", Action = "Comments", Id = commentViewModel.PostId }));
@@ -242,7 +235,7 @@ public class BlogController : Controller
     public ActionResult DeletePost(int id)
     {
         var post = repository.GetPostById(id);
-        repository.DeletePost(post);
+        repository.DeletePost(post, User).Wait();
         TempData["message"] = string.Format("{0} was deleted", post.Title);
         return RedirectToAction("Posts",
             new RouteValueDictionary(new { Controller = "Blog", Action = "Posts", Id = post.BlogId }));
@@ -258,7 +251,7 @@ public class BlogController : Controller
     [Authorize]
     [HttpPost]
     public ActionResult CreateBlog(
-        [Bind("Name,Description")] BlogViewModel blogViewModel)
+        [Bind("Name,Description","IsOpenForExternalWriters")] BlogViewModel blogViewModel)
 
     {
         try
@@ -268,6 +261,8 @@ public class BlogController : Controller
                 BlogId = blogViewModel.BlogId,
                 Name = blogViewModel.Name,
                 Description = blogViewModel.Description,
+                TimeCreated = DateTime.Now,
+                IsOpenForExternalWriters = blogViewModel.IsOpenForExternalWriters
             };
             if (ModelState.IsValid)
             {

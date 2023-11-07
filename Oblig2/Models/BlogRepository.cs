@@ -1,5 +1,6 @@
 ﻿using System.Security.Principal;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Oblig2.Data;
 using Oblig2.Models.Entities;
@@ -7,17 +8,17 @@ using Oblig2.Models.ViewModels;
 
 namespace Oblig2.Models;
 
-public class BlogRepository: IBlogRepository
+public class BlogRepository : IBlogRepository
 {
-
     private ApplicationDbContext db;
     private UserManager<IdentityUser> manager;
-    
-    public BlogRepository(UserManager<IdentityUser> userManager,ApplicationDbContext db)
+
+    public BlogRepository(UserManager<IdentityUser> userManager, ApplicationDbContext db)
     {
         manager = userManager;
         this.db = db;
     }
+
     public IEnumerable<Blog> GetAll()
     {
         var blogs = db.Blog
@@ -38,8 +39,12 @@ public class BlogRepository: IBlogRepository
 
     public Post GetPostById(int id)
     {
-        var post = db.Post.Find(id);
-        return post;
+        var post = db.Post.Include(p => p.Blog)
+                .Include(p => p.Owner)
+                .Where(p => p.PostId == id)
+                .ToList()
+            ;
+        return post[0];
     }
 
     public Comment GetCommentById(int id)
@@ -64,7 +69,7 @@ public class BlogRepository: IBlogRepository
         var viewModel = new BlogViewModel();
         return viewModel;
     }
-    
+
     public PostViewModel GetPostViewModel()
     {
         var viewModel = new PostViewModel();
@@ -73,13 +78,23 @@ public class BlogRepository: IBlogRepository
 
     public PostViewModel GetPostEditViewModelById(int id)
     {
-        var post = db.Post.Find(id);
+        var post = db.Post.Find(id)
+            ;
+        
+        var currentUser = db.Post
+            .Include(p => p.Owner)
+            .Include(p=>p.Blog)
+            .Where(p => p.PostId == id)
+            .ToList()
+            ;
+
         var viewModel = new PostViewModel
         {
-            PostId = post.PostId,
-            BlogId = post.BlogId,
-            Content = post.Content,
-            Title = post.Title,
+            PostId = currentUser[0].PostId,
+            BlogId = currentUser[0].BlogId,
+            Content = currentUser[0].Content,
+            Title = currentUser[0].Title,
+            Owner = currentUser[0].Owner
         };
         return viewModel;
     }
@@ -115,6 +130,15 @@ public class BlogRepository: IBlogRepository
         return viewModel;
     }
 
+    public Blog GetBlogById(int id)
+    {
+        var blog = db.Blog
+                .Include(b => b.Owner)
+                .Where(b => b.BlogId == id)
+                .ToList()
+            ;
+        return blog[0];
+    }
 
 
     public async Task SaveBlog(Blog blog, IPrincipal principal)
@@ -125,7 +149,7 @@ public class BlogRepository: IBlogRepository
         db.SaveChanges();
     }
 
-    
+
     public async Task SavePost(Post post, IPrincipal principal)
     {
         var user = await manager.FindByNameAsync(principal.Identity.Name);
@@ -133,8 +157,8 @@ public class BlogRepository: IBlogRepository
         db.Post.Add(post);
         db.SaveChanges();
     }
-    
-    public async Task SaveComment(Comment comment , IPrincipal principal)
+
+    public async Task SaveComment(Comment comment, IPrincipal principal)
     {
         var user = await manager.FindByNameAsync(principal.Identity.Name);
         comment.Owner = user;
@@ -142,30 +166,45 @@ public class BlogRepository: IBlogRepository
         db.SaveChanges();
     }
 
-    
-    public void EditPost(Post post)
+
+    public async Task EditPost(Post post,IPrincipal principal)
     {
-        db.Post.Update(post);
-        db.SaveChanges();
+        var currentUser = await manager.FindByNameAsync(principal.Identity.Name);
+        if (post.Owner == currentUser)
+        {
+            db.Post.Update(post);
+            db.SaveChanges();
+        }
     }
 
-    public void DeletePost(Post post)
+    public async Task DeletePost(Post post, IPrincipal principal)
     {
-        db.Post.Remove(post);
-        db.SaveChanges();
+        var currentUser = await manager.FindByNameAsync(principal.Identity.Name);
+        if (post.Owner == currentUser)
+        {
+            db.Post.Remove(post);
+            db.SaveChanges();
+        }
     }
 
-    public void EditComment(Comment comment)
+
+    public async Task EditComment(Comment comment, IPrincipal principal)
     {
-        db.Comment.Update(comment);
-        db.SaveChanges();
+        var currentUser = await manager.FindByNameAsync(principal.Identity.Name);
+        if (comment.Owner == currentUser)
+        {
+            db.Comment.Update(comment);
+            db.SaveChanges();
+        }
     }
 
-
-
-    public void DeleteComment(Comment comment)
+    public async Task DeleteComment(Comment comment, IPrincipal principal)
     {
-        db.Comment.Remove(comment);
-        db.SaveChanges();
+        var currentUser = await manager.FindByNameAsync(principal.Identity.Name);
+        if (comment.Owner == currentUser)
+        {
+            db.Comment.Remove(comment);
+            db.SaveChanges();
+        }
     }
 }

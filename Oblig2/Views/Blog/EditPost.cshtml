@@ -24,6 +24,7 @@
             </div>
             <div>
                 <input type="hidden" asp-for="BlogId" class="form-control"/>
+
             </div>
             <button type="submit">Edit Post</button>
         </form>
@@ -37,4 +38,5 @@
 </html>
 
 @section Scripts
-{@{ await Html.RenderPartialAsync("_ValidationScriptsPartial");}}
+{@{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}
