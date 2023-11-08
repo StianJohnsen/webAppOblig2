@@ -15,4 +15,6 @@ public class PostViewModel
     public int BlogId { get; set; }
     public IdentityUser? Owner { get; set; }
     public List<Blog>? Blogs { get; set; }
+    public Boolean IsOpenForExternalWriters { get; set; }
+
 }

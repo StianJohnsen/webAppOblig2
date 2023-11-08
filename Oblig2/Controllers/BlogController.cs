@@ -23,9 +23,10 @@ public class BlogController : Controller
         return View(blogs);
     }
     
-    public ActionResult Posts(int id)
+    public ActionResult Posts(int blogId, Boolean isOpenId)
     {
-        var posts = repository.GetPostsByBlogId(id);
+        Console.WriteLine("Is open: " + isOpenId);
+        var posts = repository.GetPostsByBlogId(blogId);
         return View(posts);
     }
 
@@ -35,14 +36,14 @@ public class BlogController : Controller
         return View(blog);
     }
 
-    public ActionResult Comments(int id)
+    public ActionResult Comments(int postId, int isOpenId)
     {
-        var comments = repository.GetCommentsByPostId(id);
+        var comments = repository.GetCommentsByPostId(postId);
         return View(comments);
     }
 
     [Authorize]
-    public ActionResult CreateComment()
+    public ActionResult CreateComment(int id)
     {
         var comment = repository.GetCommentViewModel();
         return View(comment);
@@ -63,13 +64,15 @@ public class BlogController : Controller
     {
         try
         {
+            var post = repository.GetPostById(id);
             Console.WriteLine(commentViewModel.CommentContent);
             var comment = new Comment
             {
                 CommentId = commentViewModel.CommentId,
                 CommentContent = commentViewModel.CommentContent,
                 PostId = id,
-                TimeCreated = DateTime.Now
+                TimeCreated = DateTime.Now,
+                Post = post
             };
 
 
@@ -77,8 +80,10 @@ public class BlogController : Controller
             {
                 TempData["message"] = "Your comment has been saved";
                 repository.SaveComment(comment, User).Wait();
-                return RedirectToAction("Comments",
-                    new RouteValueDictionary(new { Controller = "Blog", Action = "Comments", Id = id }));
+                return RedirectToAction("Comments", "Blog", new
+                {
+                    postId = comment.PostId, isOpenId = true
+                });
             }
             else
             {
@@ -95,19 +100,22 @@ public class BlogController : Controller
     [Authorize]
     [HttpPost]
     public ActionResult CreatePost(int id,
-        [Bind("Title,Content,PostId")] PostViewModel postViewModel)
+        [Bind("Title,Content,PostId", "IsOpenForExternalWriters")] PostViewModel postViewModel)
 
     {
         try
         {
+            var blog = repository.GetBlogById(id);
             Console.WriteLine("BlogId: " + id);
             var post = new Post
             {
+                Blog = blog,
                 PostId = postViewModel.PostId,
                 Title = postViewModel.Title,
                 Content = postViewModel.Content,
                 BlogId = id,
-                TimeCreated = DateTime.Now
+                TimeCreated = DateTime.Now,
+                IsOpenForExternalWriters = postViewModel.IsOpenForExternalWriters
             };
 
 
@@ -115,8 +123,10 @@ public class BlogController : Controller
             {
                 TempData["message"] = string.Format("{0} has been saved", post.Title);
                 repository.SavePost(post, User).Wait();
-                return RedirectToAction("Posts",
-                    new RouteValueDictionary(new { Controller = "Blog", Action = "Posts", Id = id }));
+                return RedirectToAction("Posts", "Blog", new
+                {
+                    blogId = post.BlogId, isOpenId = true
+                });
             }
             else
             {
@@ -140,22 +150,25 @@ public class BlogController : Controller
     [Authorize]
     [HttpPost]
     public ActionResult EditPost(int Id,
-        [Bind("Title,Content", "BlogId")] PostViewModel postViewModel)
+        [Bind("Title,Content", "BlogId","IsOpenForExternalWriters")] PostViewModel postViewModel)
 
     {
+        var blog = repository.GetBlogById(postViewModel.BlogId);
         var post = repository.GetPostById(Id);
         post.Title = postViewModel.Title;
         post.Content = postViewModel.Content;
         post.TimeCreated = DateTime.Now;
+        post.IsOpenForExternalWriters = postViewModel.IsOpenForExternalWriters;
         try
         {
             if (ModelState.IsValid)
             {
-                TempData["message"] = string.Format("{0} has been saved", post.Title);
-                repository.EditPost(post,User).Wait();
-                return RedirectToAction("Posts",
-                    new RouteValueDictionary(new
-                        { Controller = "Blog", Action = "Posts", Id = postViewModel.BlogId }));
+                TempData["message"] = string.Format("{0} has been edited", post.Title);
+                repository.EditPost(post,blog.IsOpenForExternalWriters,User).Wait();
+                return RedirectToAction("Posts", "Blog", new
+                {
+                    blogId = postViewModel.BlogId, isOpenId = true
+                });
             }
 
             else
@@ -207,13 +220,18 @@ public class BlogController : Controller
     {
         try
         {
+            var post = repository.GetPostById(commentViewModel.PostId);
             var comment = repository.GetCommentById(Id);
             comment.CommentContent = commentViewModel.CommentContent;
             comment.TimeCreated = DateTime.Now;
             if (ModelState.IsValid)
             {
                 TempData["message"] = "Your comment has been edited";
-                repository.EditComment(comment, User).Wait();
+                repository.EditComment(comment, post.IsOpenForExternalWriters,User).Wait();
+                return RedirectToAction("Comments", "Blog", new
+                {
+                    postId = comment.PostId, isOpenId = true
+                });
                 return RedirectToAction("Comments",
                     new RouteValueDictionary(new
                         { Controller = "Blog", Action = "Comments", Id = commentViewModel.PostId }));
@@ -237,8 +255,10 @@ public class BlogController : Controller
         var post = repository.GetPostById(id);
         repository.DeletePost(post, User).Wait();
         TempData["message"] = string.Format("{0} was deleted", post.Title);
-        return RedirectToAction("Posts",
-            new RouteValueDictionary(new { Controller = "Blog", Action = "Posts", Id = post.BlogId }));
+        return RedirectToAction("Posts", "Blog", new
+        {
+            blogId = post.BlogId, isOpenId = true
+        });
     }
 
     [Authorize]

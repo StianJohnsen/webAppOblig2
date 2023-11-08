@@ -7,14 +7,17 @@
 <h1>Comments</h1>
 
 <p>
-    @if (Model.Any() && Model.First().Post != null)
-    {
-        <a asp-action="CreateComment" asp-route-id="@Model.First().Post.PostId">Create New</a>
+    @{
+        // If the blog is open for external writers, show the create new post link
+        bool isOpenId;
+        bool.TryParse(Context.Request.Query["isOpenId"], out isOpenId);
+        if (isOpenId)
+        {
+            <a asp-action="CreateComment" asp-route-id="@Context.Request.Query["postId"]">Create New</a>
+        }
+
     }
-    else
-    {
-        <a asp-action="CreateComment" asp-route-id="@Context.Request.RouteValues["id"]">Create New</a>
-    }
+
 </p>
 <table class="table">
     <thead>
@@ -45,9 +48,9 @@
                 }
                 @Html.DisplayFor(modelItem => content)
             </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Owner.Email)
-                        </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Owner.Email)
+            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.TimeCreated)
             </td>

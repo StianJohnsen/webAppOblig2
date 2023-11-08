@@ -27,9 +27,9 @@ public interface IBlogRepository
 
     public Task SaveBlog(Blog blog, IPrincipal principal);
     public Task SavePost(Post post, IPrincipal principal);
-    public Task EditPost(Post post, IPrincipal principal);
+    public Task EditPost(Post post, Boolean isOpen,IPrincipal principal);
     public Task DeletePost(Post post, IPrincipal principal);
-    public Task EditComment(Comment comment, IPrincipal principal);
+    public Task EditComment(Comment comment, Boolean isOpen, IPrincipal principal);
     public Task SaveComment(Comment comment, IPrincipal principal);
     public Task DeleteComment(Comment comment, IPrincipal principal);
 }

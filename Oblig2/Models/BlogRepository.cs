@@ -94,7 +94,9 @@ public class BlogRepository : IBlogRepository
             BlogId = currentUser[0].BlogId,
             Content = currentUser[0].Content,
             Title = currentUser[0].Title,
-            Owner = currentUser[0].Owner
+            Owner = currentUser[0].Owner,
+            IsOpenForExternalWriters = currentUser[0].IsOpenForExternalWriters
+            
         };
         return viewModel;
     }
@@ -154,23 +156,30 @@ public class BlogRepository : IBlogRepository
     {
         var user = await manager.FindByNameAsync(principal.Identity.Name);
         post.Owner = user;
-        db.Post.Add(post);
-        db.SaveChanges();
+        if (post.Blog.IsOpenForExternalWriters)
+        {
+            db.Post.Add(post);
+            db.SaveChanges();
+        }
     }
 
     public async Task SaveComment(Comment comment, IPrincipal principal)
     {
         var user = await manager.FindByNameAsync(principal.Identity.Name);
+        
         comment.Owner = user;
-        db.Comment.Add(comment);
-        db.SaveChanges();
+        if (comment.Post.IsOpenForExternalWriters)
+        {
+            db.Comment.Add(comment);
+            db.SaveChanges();
+        }
     }
 
 
-    public async Task EditPost(Post post,IPrincipal principal)
+    public async Task EditPost(Post post,Boolean isOpen,IPrincipal principal)
     {
         var currentUser = await manager.FindByNameAsync(principal.Identity.Name);
-        if (post.Owner == currentUser)
+        if (post.Owner == currentUser && isOpen)
         {
             db.Post.Update(post);
             db.SaveChanges();
@@ -188,10 +197,10 @@ public class BlogRepository : IBlogRepository
     }
 
 
-    public async Task EditComment(Comment comment, IPrincipal principal)
+    public async Task EditComment(Comment comment,Boolean isOpen,IPrincipal principal)
     {
         var currentUser = await manager.FindByNameAsync(principal.Identity.Name);
-        if (comment.Owner == currentUser)
+        if (comment.Owner == currentUser && isOpen)
         {
             db.Comment.Update(comment);
             db.SaveChanges();

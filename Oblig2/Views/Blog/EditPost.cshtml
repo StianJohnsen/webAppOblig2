@@ -23,6 +23,11 @@
                 <span asp-validation-for="Content" class="text-danger"></span>
             </div>
             <div>
+                <label asp-for="IsOpenForExternalWriters">Open:</label>
+                <input type="checkbox" asp-for="IsOpenForExternalWriters"/>
+                <span asp-validation-for="IsOpenForExternalWriters" class="text-danger"></span>
+            </div>
+            <div>
                 <input type="hidden" asp-for="BlogId" class="form-control"/>
 
             </div>

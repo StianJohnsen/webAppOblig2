@@ -22,6 +22,12 @@
                 <textarea asp-for="Content" class="form-control" rows="5"></textarea>
                 <span asp-validation-for="Content" class="text-danger"></span>
             </div>
+
+            <div>
+                <label asp-for="IsOpenForExternalWriters">Open:</label>
+                <input type="checkbox" asp-for="IsOpenForExternalWriters"/>
+                <span asp-validation-for="IsOpenForExternalWriters" class="text-danger"></span>
+            </div>
             <button type="submit">Create Post</button>
         </form>
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -34,4 +40,5 @@
 </html>
 
 @section Scripts
-{@{ await Html.RenderPartialAsync("_ValidationScriptsPartial");}}
+{@{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}
